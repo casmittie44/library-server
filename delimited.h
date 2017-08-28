@@ -15,7 +15,7 @@ typedef struct{
    
 DD* DDCreateDatabase(const char* fileName, char delimiter);
 void DDFreeStructure(DD*);
-int DDInsertEntry(DD* database, char* entry, int len);
+int DDInsertEntry(DD* database, char* entry);
 int DDRemoveEntry(char* file, char* entry, int len);
 char* DDSearch(char* file, char* entry, int len);
 #endif
