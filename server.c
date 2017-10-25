@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -11,7 +12,7 @@
 #define PORT 8080
 
 void ManageSocket(int);
-void ExecuteInput(char*);
+void ExecuteInput(int, char*);
 DD* database;
 
 int main() {
@@ -36,26 +37,34 @@ int main() {
       fatal("listening on socket.");
 
    ManageSocket(sockfd);
+   DDFreeStructure(database);
    return 0;
 }
 
 void ManageSocket(int sockfd) {
+    char buffer[1024];
+    struct sockaddr client_addr;
+    socklen_t sinSize = sizeof(struct sockaddr_in);
+    int ioSocket = accept(sockfd, (struct sockaddr*)&client_addr, &sinSize);
+    if(ioSocket == -1)
+       fatal("accepting connection");
+    
    while(1) {
-      char buffer[1024];
-      struct sockaddr client_addr;
-      socklen_t sinSize = sizeof(struct sockaddr_in);
-      int ioSocket = accept(sockfd, (struct sockaddr*)&client_addr, &sinSize);
-      if(ioSocket == -1)
-	 fatal("accepting connection");
+      static int counter = -1;
+      counter++;
+      printf("Loop number: %u\n", counter);
+      int ioLength = send(ioSocket, "Enter 'a' followed by book title:\n", 33, 0);
+      printf("Sent %u bytes to client.\n", ioLength);
+      ioLength = recv(ioSocket, &buffer, 1024, 0);
+      printf("Received %u bytes from client.\n", ioLength);
 
-      int ioLength = recv(ioSocket, &buffer, 1024, 0);
-      if(ioLength == 0)
+      if(ioLength == 0) 
 	 continue;
-      ExecuteInput(buffer);
+      ExecuteInput(ioSocket, buffer);
    }
 }
 
-void ExecuteInput(char* buffer) {
+void ExecuteInput(int socket, char* buffer) {
    // Add element to database
    if(buffer[0] == 'a') {
       DDInsertEntry(database, buffer+2);
@@ -70,6 +79,11 @@ void ExecuteInput(char* buffer) {
    if(buffer[0] == 's') {
       //char* searchResult = DDSearch(buffer+2, strlen(buffer+2));
       //ioLength = send(ioSocket, searchResult, strlen(searchResult), 0);
+   }
+
+   if(buffer[0] == 'q' || buffer[0] == 'Q') {
+      close(socket);
+      exit(0);
    }
 }
 

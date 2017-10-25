@@ -1,7 +1,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#ifndef HACKING_H
+#define HACKING_H
 // Prints error message and forces program exit
 void fatal(char* message)
 {
@@ -46,3 +47,4 @@ void dump(const unsigned char *data_buffer, const unsigned int length) {
       }
    }
 }
+#endif
