@@ -20,7 +20,8 @@ int main() {
    int sockfd;
    struct sockaddr_in host_addr;
    int yes = 1;
-
+   printf("Setting up socket.\n");
+   
    // Attempt to set up socket
    if((sockfd = socket (PF_INET, SOCK_STREAM, 0)) == -1)
       fatal("could not create socket.");
@@ -35,7 +36,7 @@ int main() {
 
    if(listen(sockfd, 5) == -1)
       fatal("listening on socket.");
-
+   printf("Listening...\n");
    ManageSocket(sockfd);
    DDFreeStructure(database);
    return 0;
@@ -45,25 +46,29 @@ void ManageSocket(int sockfd) {
     char buffer[1024];
     struct sockaddr client_addr;
     socklen_t sinSize = sizeof(struct sockaddr_in);
-    int ioSocket = accept(sockfd, (struct sockaddr*)&client_addr, &sinSize);
-    if(ioSocket == -1)
-       fatal("accepting connection");
+    int ioSocket; 
     
    while(1) {
-      static int counter = -1;
-      counter++;
-      printf("Loop number: %u\n", counter);
+      ioSocket = accept(sockfd, (struct sockaddr*)&client_addr, &sinSize);
+      if(ioSocket == -1)
+	 fatal("accepting connection");
+      
       int ioLength = send(ioSocket, "Enter 'a' followed by book title:\n", 33, 0);
       printf("Sent %u bytes to client.\n", ioLength);
       ioLength = recv(ioSocket, &buffer, 1024, 0);
       printf("Received %u bytes from client.\n", ioLength);
-
+      printf("Client: %.*s", ioLength, buffer);
       if(ioLength == 0) 
 	 continue;
+
+      // Telnet sends a multi-character EOL, so lop it off 
+      buffer[ioLength-2] = '\n';
+      buffer[ioLength-1] = '\0';
       ExecuteInput(ioSocket, buffer);
+      close(ioSocket);
    }
 }
-
+   
 void ExecuteInput(int socket, char* buffer) {
    // Add element to database
    if(buffer[0] == 'a') {
@@ -87,5 +92,3 @@ void ExecuteInput(int socket, char* buffer) {
    }
 }
 
-
-   

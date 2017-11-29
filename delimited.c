@@ -35,43 +35,17 @@ void DDFreeStructure(DD* databaseStruct) {
 // Ensure that a string ends with a delimiter character
 // If it does end with the delimiter, return it
 // If not, add the delimiter character and return
-static char* AppendDelimiter(char* string, char delimiter) {
-   int len = strlen(string) + 1; // length of string including trailing '\0'
-   char* ret;
-   if(len == 0)
-      return "";
-
-   // If the string ends with the delimiter, no need to edit string,
-   // so set the offset to zero
-   if(string[len-1] == delimiter){   
-       ret = malloc(len);
-       strncpy(ret, string,len);
-   }
-
-   else {
-      ret = (char*)malloc(len+1);
-      strncpy(ret, string, len);
-      strcat(ret, "\n");
-   }
-       
-   return ret;
-}
 
 /*********************************************************
  * Insert a new entry into the database. The data is stored
  * in a flat text file and then indexed. 
  *********************************************************/
 int DDInsertEntry(DD* database, char* entry) {
-   char *entryWithDelimiter;
    if(database == NULL)
       return -1;
 
-   // Make sure the entry has a delimiter at the end;
-   // this will dynamically allocate a char*, which must be freed
-   entryWithDelimiter = AppendDelimiter(entry, database->delimiter);
    FILE* filePointer = fopen(database->fileName, "a+");
-   fputs(entryWithDelimiter, filePointer);
-   free(entryWithDelimiter);
+   fputs(entry, filePointer);
    database->numberOfEntries++;
    
    // Close file
