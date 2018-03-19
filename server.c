@@ -47,8 +47,10 @@ void ManageSocket(int sockfd) {
     struct sockaddr client_addr;
     socklen_t sinSize = sizeof(struct sockaddr_in);
     int ioSocket; 
-    
-   while(1) {
+
+    // Each loop we accept one connection, take the needed action,
+    // then close the connection
+    while(1) {
       ioSocket = accept(sockfd, (struct sockaddr*)&client_addr, &sinSize);
       if(ioSocket == -1)
 	 fatal("accepting connection");
@@ -91,4 +93,3 @@ void ExecuteInput(int socket, char* buffer) {
       exit(0);
    }
 }
-

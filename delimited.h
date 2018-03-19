@@ -6,16 +6,18 @@
  ****************************************************************/
 #ifndef DELIMITED_DATABASE_H
 #define DELIMITED_DATABASE_H
-
-typedef struct{
+typedef struct {
    char delimiter;
    int numberOfEntries;
    char* fileName;
 } DD;
-   
+
+typedef struct {
+   char* contents;
+} DDEntry;
 DD* DDCreateDatabase(const char* fileName, char delimiter);
 void DDFreeStructure(DD*);
 int DDInsertEntry(DD* database, char* entry);
-int DDRemoveEntry(char* file, char* entry, int len);
-char* DDSearch(char* file, char* entry, int len);
+int DDRemoveEntry(DD* database, char* entry, int len);
+char** DDSearch(DD* database, char* entry, int len);
 #endif
